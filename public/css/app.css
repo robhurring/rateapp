@@ -1,0 +1,10 @@
+body {
+  background: #fafafa; }
+
+.blah {
+  zoom: 1; }
+  .blah:before, .blah:after {
+    content: "";
+    display: table; }
+  .blah:after {
+    clear: both; }

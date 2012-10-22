@@ -80,9 +80,11 @@ class App.Views.TopicView extends Backbone.View
   events:
     'click .upvote a': 'upvote'
     'click .downvote a': 'downvote'
+    'click .info a': 'openInfo'
 
   initialize: ->
-    @header = ($ 'header', @el)
+    @header = ($ 'header .name', @el)
+    @info = ($ 'header .info', @el)
     @gauge = new App.GaugeWrapper($ '.topic_meter')
 
     _.bindAll @, 'render', 'modelSynced'
@@ -97,6 +99,9 @@ class App.Views.TopicView extends Backbone.View
     @indicate 'downvote'
     @model.downVote()
 
+  openInfo: ->
+    console.log 'ohai'
+
   indicate: (type) ->
     ($ ".#{type} .indicator", @el).show()
     ($ ".#{type} a", @el).hide()
@@ -108,8 +113,15 @@ class App.Views.TopicView extends Backbone.View
     ($ '.indicator', @el).hide()
     ($ 'a', @el).show()
 
+  repositionInfo: ->
+    @info.hide()
+    pos = @header.position()
+    @info.css top: pos.top - 5, left: pos.left + @header.width() + 5
+    @info.show()
+
   render: ->
     @header.html @model.get('name')
+    @repositionInfo()
     @gauge.set @model.get('percent')
     @
 

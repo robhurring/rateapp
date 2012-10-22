@@ -149,11 +149,13 @@ App.Views.TopicView = (function(_super) {
 
   TopicView.prototype.events = {
     'click .upvote a': 'upvote',
-    'click .downvote a': 'downvote'
+    'click .downvote a': 'downvote',
+    'click .info a': 'openInfo'
   };
 
   TopicView.prototype.initialize = function() {
-    this.header = $('header', this.el);
+    this.header = $('header .name', this.el);
+    this.info = $('header .info', this.el);
     this.gauge = new App.GaugeWrapper($('.topic_meter'));
     _.bindAll(this, 'render', 'modelSynced');
     this.model.on('change', this.render);
@@ -170,6 +172,10 @@ App.Views.TopicView = (function(_super) {
     return this.model.downVote();
   };
 
+  TopicView.prototype.openInfo = function() {
+    return console.log('ohai');
+  };
+
   TopicView.prototype.indicate = function(type) {
     ($("." + type + " .indicator", this.el)).show();
     return ($("." + type + " a", this.el)).hide();
@@ -184,8 +190,20 @@ App.Views.TopicView = (function(_super) {
     return ($('a', this.el)).show();
   };
 
+  TopicView.prototype.repositionInfo = function() {
+    var pos;
+    this.info.hide();
+    pos = this.header.position();
+    this.info.css({
+      top: pos.top - 5,
+      left: pos.left + this.header.width() + 5
+    });
+    return this.info.show();
+  };
+
   TopicView.prototype.render = function() {
     this.header.html(this.model.get('name'));
+    this.repositionInfo();
     this.gauge.set(this.model.get('percent'));
     return this;
   };

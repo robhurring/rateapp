@@ -39,9 +39,30 @@ body {
 article.topic {
   background: #fff; }
   article.topic header {
+    position: relative;
     text-align: center;
-    background: #f0f0f0;
-    font: 25px/100px "The Girl Next Door"; }
+    background: #f0f0f0; }
+    article.topic header .name {
+      display: inline;
+      font: 25px/100px "The Girl Next Door"; }
+    article.topic header .info {
+      position: absolute;
+      top: 0;
+      right: 0; }
+      article.topic header .info a {
+        display: block;
+        background: #fff;
+        width: 20px;
+        height: 20px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: #999;
+        text-decoration: none; }
+        article.topic header .info a:hover {
+          background: #ccc;
+          border-color: #999;
+          color: #555; }
   article.topic .controls {
     zoom: 1;
     display: block;

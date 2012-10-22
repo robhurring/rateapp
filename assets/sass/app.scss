@@ -66,9 +66,40 @@ article.topic
 
   header
   {
+    position:relative;
     text-align:center;
     background:#f0f0f0;
-    font:25px/100px 'The Girl Next Door';
+
+    .name
+    {
+      display:inline;
+      font:25px/100px 'The Girl Next Door';
+    }
+
+    .info{
+      position:absolute;
+      top:0;
+      right:0;
+
+      a
+      {
+        display:block;
+        background:#fff;
+        width:20px;
+        height:20px;
+        border-radius:10px;
+        border:1px solid #ccc;
+        font-family:$helvetica;
+        color:#999;
+        text-decoration: none;
+
+        &:hover{
+          background:#ccc;
+          border-color:#999;
+          color:#555;
+        }
+      }
+    }
   }
 
   .controls

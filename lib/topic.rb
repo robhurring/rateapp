@@ -1,7 +1,6 @@
 class Topic
   class << self
     def get(key)
-      # $redis.del key
       if data = $redis.get(key)
         new JSON.parse(data).merge('key' => key)
       else
@@ -60,6 +59,10 @@ class Topic
 
   def save
     $redis.set @key, self.to_json
+  end
+
+  def destroy
+    $redis.del @key
   end
 
   def to_h

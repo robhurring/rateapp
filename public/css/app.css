@@ -1,10 +1,56 @@
 body {
   background: #fafafa; }
 
-.blah {
-  zoom: 1; }
-  .blah:before, .blah:after {
-    content: "";
-    display: table; }
-  .blah:after {
-    clear: both; }
+#app {
+  width: 82.91457%;
+  margin: 25px auto;
+  border: 5px solid #2989d8;
+  border-radius: 10px; }
+  #app .header {
+    font: 50px 'Lobster';
+    text-align: center;
+    background-color: #1e5799;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(100%, compact(#1e5799, #2989d8, false, false, false, false, false, false, false, false)));
+    background-image: -webkit-linear-gradient(top, compact(#1e5799, #2989d8, false, false, false, false, false, false, false, false));
+    background-image: -moz-linear-gradient(top, compact(#1e5799, #2989d8, false, false, false, false, false, false, false, false));
+    background-image: -ms-linear-gradient(top, compact(#1e5799, #2989d8, false, false, false, false, false, false, false, false));
+    background-image: -o-linear-gradient(top, compact(#1e5799, #2989d8, false, false, false, false, false, false, false, false));
+    background-image: linear-gradient(top, compact(#1e5799, #2989d8, false, false, false, false, false, false, false, false));
+    color: #fff;
+    padding: 10px;
+    text-shadow: 3px 2px #2989d8; }
+
+article.topic {
+  background: #fff; }
+  article.topic header {
+    text-align: center;
+    background: #f0f0f0;
+    font: 25px/100px "The Girl Next Door"; }
+  article.topic .controls {
+    zoom: 1;
+    width: 82.91457%;
+    margin: 0 auto;
+    padding: 25px 0; }
+    article.topic .controls:before, article.topic .controls:after {
+      content: "";
+      display: table; }
+    article.topic .controls:after {
+      clear: both; }
+    article.topic .controls .meter {
+      float: left;
+      width: 40.20101%;
+      margin-left: 14.57286%; }
+      article.topic .controls .meter .topic_meter {
+        width: 100%; }
+    article.topic .controls .upvote {
+      float: left;
+      width: 14.57286%;
+      text-align: center;
+      height: 140px;
+      font: 100px/140px "Archivo Black"; }
+    article.topic .controls .downvote {
+      float: right;
+      width: 14.57286%;
+      text-align: center;
+      height: 140px;
+      font: 100px/140px "Archivo Black"; }

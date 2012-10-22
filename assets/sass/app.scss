@@ -1,10 +1,82 @@
 @import "bourbon/bourbon";
 
+$fg-column: 60px;     // Column Width
+$fg-gutter: 25px;     // Gutter Width
+$fg-max-columns: 12;  // Total Columns For Main Container
+
+$main-background-color: #1e5799;
+$main-highlight-color: #2989d8;
+
 body
 {
-  background: #fafafa;
+  background:#fafafa;
 }
 
-.blah{
-  @include clearfix;
+#app
+{
+  width:flex-grid(10);
+  margin:$fg-gutter auto;
+  border:5px solid #2989d8;
+  border-radius: 10px;
+
+  .header
+  {
+    font:50px 'Lobster';
+    text-align:center;
+    @include linear-gradient($main-background-color, $main-highlight-color);
+    color:#fff;
+    padding:10px;
+    text-shadow: 3px 2px $main-highlight-color;
+  }
+}
+
+article.topic
+{
+  background:#fff;
+
+  header
+  {
+    text-align:center;
+    background:#f0f0f0;
+    font:25px/100px 'The Girl Next Door';
+  }
+
+  .controls
+  {
+    @include clearfix;
+    width:flex-grid(10);
+    margin:0 auto;
+    padding:$fg-gutter 0;
+
+    .meter
+    {
+      float:left;
+      width:flex-grid(5);
+      margin-left:flex-grid(2);
+
+      .topic_meter
+      {
+        width:flex-grid(12);
+      }
+    }
+
+    @mixin vote-button($float)
+    {
+      float:$float;
+      width:flex-grid(2);
+      text-align:center;
+      height:140px;
+      font:100px/140px 'Archivo Black';
+    }
+
+    .upvote
+    {
+      @include vote-button(left);
+    }
+
+    .downvote
+    {
+      @include vote-button(right);
+    }
+  }
 }

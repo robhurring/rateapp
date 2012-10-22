@@ -44,6 +44,8 @@ GEM
     rack-protection (1.2.0)
       rack
     redis (3.0.2)
+    redis-namespace (1.2.1)
+      redis (~> 3.0.0)
     rest-client (1.6.7)
       mime-types (>= 1.16)
     ruby-hmac (0.4.0)
@@ -71,6 +73,6 @@ DEPENDENCIES
   heroku
   json
   pusher
-  redis
+  redis-namespace
   shotgun
   sinatra

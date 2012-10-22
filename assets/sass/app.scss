@@ -109,6 +109,7 @@ article.topic
       border-style:solid;
       margin:0 auto;
       vertical-align:middle;
+      cursor: hand;
 
       @if $type == "up"
       {

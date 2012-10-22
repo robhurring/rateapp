@@ -2,7 +2,7 @@ source :rubygems
 
 gem 'sinatra', require: 'sinatra/base'
 gem 'pusher'
-gem 'redis'
+gem 'redis-namespace'
 gem 'haml'
 gem 'json'
 

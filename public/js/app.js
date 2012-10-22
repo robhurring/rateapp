@@ -1,3 +1,6 @@
+var bootstrap, loadAppConfig,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 window.App || (window.App = {});
 
@@ -50,89 +53,98 @@ App.GaugeWrapper = (function() {
 
 })();
 
-App.ConnectionManager = (function() {
+App.ConnectionManager = (function(_super) {
 
-  function ConnectionManager(delegate) {
-    var _this = this;
-    this.delegate = delegate;
-    this.loadAppConfig(function() {
-      return _this.setupPusher();
-    });
+  __extends(ConnectionManager, _super);
+
+  function ConnectionManager(pusherConfig) {
+    this.pusherConfig = pusherConfig;
+    this.setupPusher();
   }
-
-  ConnectionManager.prototype.loadAppConfig = function(callback) {
-    var _this = this;
-    return $.getJSON('/config.json', function(data) {
-      _this.appConfig = data;
-      return callback();
-    });
-  };
 
   ConnectionManager.prototype.setupPusher = function() {
     var WEB_SOCKET_DEBUG, channel, pusher,
       _this = this;
-    if (this.appConfig.pusher.debug != null) {
+    if (this.pusherConfig.debug != null) {
       Pusher.log = function(message) {
         return typeof console !== "undefined" && console !== null ? console.log(message) : void 0;
       };
       WEB_SOCKET_DEBUG = true;
     }
-    pusher = new Pusher(this.appConfig.pusher.key);
+    pusher = new Pusher(this.pusherConfig.key);
     pusher.connection.bind('state_change', function(states) {
-      return _this.delegate.trigger('app:state_change', states);
+      return _this.trigger('state_change', states);
     });
     pusher.connection.bind('connecting', function() {
-      return _this.delegate.trigger('app:connecting');
+      return _this.trigger('connecting');
     });
     pusher.connection.bind('connected', function() {
-      return _this.delegate.trigger('app:connected');
+      return _this.trigger('connected');
     });
     pusher.connection.bind('disconnected', function() {
-      return _this.delegate.trigger('app:disconnected');
+      return _this.trigger('disconnected');
     });
-    channel = pusher.subscribe(this.appConfig.pusher.channel);
-    return this.delegate.trigger('app:channel:subscribed', channel);
+    channel = pusher.subscribe(this.pusherConfig.channel);
+    return this.trigger('channel:subscribed', channel);
   };
 
   return ConnectionManager;
 
-})();
+})(AbstractEventsDispatcher);
 
-App.ChannelEventManager = (function() {
+App.ViewManager = (function() {
 
-  function ChannelEventManager(channel) {
-    this.channel = channel;
-    this.channel.bind('score-changed', this.scoreChanged);
+  function ViewManager() {
+    this.header = $('.topic header');
+    this.gauge = new App.GaugeWrapper('.topic_meter');
+    ($('.upvote a')).on('click', this.upvote);
+    ($('.downvote a')).on('click', this.downvotea);
+    this.updateHeader();
+    this.updateGauge();
   }
 
-  ChannelEventManager.prototype.scoreChanged = function(data) {
-    return console.log(data);
+  ViewManager.prototype.updateHeader = function() {
+    return this.header.html(App.config.topic.name);
   };
 
-  return ChannelEventManager;
+  ViewManager.prototype.updateGauge = function() {
+    return this.gauge.set(parseInt(App.config.topic.score));
+  };
+
+  ViewManager.prototype.upvote = function() {
+    return console.log('voteup');
+  };
+
+  ViewManager.prototype.downvote = function() {
+    return console.log('downvote');
+  };
+
+  return ViewManager;
 
 })();
 
-App.VoteManager = (function() {
-
-  function VoteManager() {}
-
-  return VoteManager;
-
-})();
-
-$(function() {
-  App.delegate = $(document);
-  App.connectionManager = new App.ConnectionManager(App.delegate);
-  App.gauge = new App.GaugeWrapper('.topic_meter');
-  App.gauge.set(0.1);
-  ($(document)).bind('app:connecting', function() {
+bootstrap = function() {
+  var connectionManager, viewManager;
+  connectionManager = new App.ConnectionManager(App.config.pusher);
+  viewManager = new App.ViewManager;
+  connectionManager.bind('connecting', function() {
     return ($('#connectionNotice')).slideDown();
   });
-  ($(document)).bind('app:connected', function() {
+  return connectionManager.bind('connected', function() {
     return ($('#connectionNotice')).slideUp();
   });
-  return ($(document)).bind('app:channel:subscribed', function(_, channel) {
-    return App.eventManager = new App.ChannelEventManager(channel);
+};
+
+loadAppConfig = function(callback) {
+  var _this = this;
+  return $.getJSON('/config.json', function(data) {
+    App.config = data;
+    return callback();
+  });
+};
+
+$(function() {
+  return loadAppConfig(function() {
+    return bootstrap();
   });
 });

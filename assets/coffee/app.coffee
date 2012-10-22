@@ -36,60 +36,68 @@ class App.GaugeWrapper
 
     @gauge.set value
 
-class App.ConnectionManager
-  constructor: (delegate) ->
-    @delegate = delegate
-    @loadAppConfig =>
-      @setupPusher()
-
-  loadAppConfig: (callback) ->
-    $.getJSON '/config.json', (data) =>
-      @appConfig = data
-      callback()
+class App.ConnectionManager extends AbstractEventsDispatcher
+  constructor: (@pusherConfig) ->
+    @setupPusher()
 
   setupPusher: ->
-    if @appConfig.pusher.debug?
+    if @pusherConfig.debug?
       Pusher.log = (message) -> console?.log message
       WEB_SOCKET_DEBUG = true
 
-    pusher = new Pusher @appConfig.pusher.key
+    pusher = new Pusher @pusherConfig.key
 
     pusher.connection.bind 'state_change', (states) =>
-      @delegate.trigger 'app:state_change', states
+      @trigger 'state_change', states
 
     pusher.connection.bind 'connecting', =>
-      @delegate.trigger 'app:connecting'
+      @trigger 'connecting'
 
     pusher.connection.bind 'connected', =>
-      @delegate.trigger 'app:connected'
+      @trigger 'connected'
 
     pusher.connection.bind 'disconnected', =>
-      @delegate.trigger 'app:disconnected'
+      @trigger 'disconnected'
 
-    channel = pusher.subscribe @appConfig.pusher.channel
-    @delegate.trigger 'app:channel:subscribed', channel
+    channel = pusher.subscribe @pusherConfig.channel
+    @trigger 'channel:subscribed', channel
 
-class App.ChannelEventManager
-  constructor: (@channel) ->
-    @channel.bind 'score-changed', @scoreChanged
+class App.ViewManager
+  constructor: ->
+    @header = ($ '.topic header')
+    @gauge = new App.GaugeWrapper '.topic_meter'
+    ($ '.upvote a').on 'click', @upvote
+    ($ '.downvote a').on 'click', @downvotea
 
-  scoreChanged: (data) ->
-    console.log data
+    @updateHeader()
+    @updateGauge()
 
-class App.VoteManager
+  updateHeader: ->
+    @header.html App.config.topic.name
 
-$ ->
-  App.delegate = ($ document)
-  App.connectionManager = new App.ConnectionManager App.delegate
+  updateGauge: ->
+    @gauge.set parseInt(App.config.topic.score)
 
-  App.gauge = new App.GaugeWrapper('.topic_meter')
-  App.gauge.set 0.1
+  upvote: ->
+    console.log 'voteup'
 
-  ($ document).bind 'app:connecting', ->
+  downvote: ->
+    console.log 'downvote'
+
+bootstrap = ->
+  connectionManager = new App.ConnectionManager App.config.pusher
+  viewManager = new App.ViewManager
+
+  connectionManager.bind 'connecting', ->
     ($ '#connectionNotice').slideDown()
 
-  ($ document).bind 'app:connected', ->
+  connectionManager.bind 'connected', ->
     ($ '#connectionNotice').slideUp()
 
-  ($ document).bind 'app:channel:subscribed', (_, channel) ->
-    App.eventManager = new App.ChannelEventManager channel
+loadAppConfig = (callback) ->
+  $.getJSON '/config.json', (data) =>
+    App.config = data
+    callback()
+
+$ ->
+  loadAppConfig -> bootstrap()

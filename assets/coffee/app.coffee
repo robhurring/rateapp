@@ -1,4 +1,8 @@
-window.App ||= {}
+window.App = {}
+window.App.Views = {}
+window.App.Models = {}
+
+Backbone.emulateJSON = true
 
 class App.GaugeWrapper
   colorOptions =
@@ -36,16 +40,13 @@ class App.GaugeWrapper
 
     @gauge.set value
 
-class App.ConnectionManager extends AbstractEventsDispatcher
-  constructor: (@pusherConfig) ->
-    @setupPusher()
-
-  setupPusher: ->
-    if @pusherConfig.debug?
+class App.ConnectionManager extends EventsDispatcher
+  connect: ->
+    if App.config.get('debug')?
       Pusher.log = (message) -> console?.log message
       WEB_SOCKET_DEBUG = true
 
-    pusher = new Pusher @pusherConfig.key
+    pusher = new Pusher App.config.get('key')
 
     pusher.connection.bind 'state_change', (states) =>
       @trigger 'state_change', states
@@ -59,45 +60,86 @@ class App.ConnectionManager extends AbstractEventsDispatcher
     pusher.connection.bind 'disconnected', =>
       @trigger 'disconnected'
 
-    channel = pusher.subscribe @pusherConfig.channel
+    channel = pusher.subscribe App.config.get('channel')
     @trigger 'channel:subscribed', channel
 
-class App.ViewManager
-  constructor: ->
-    @header = ($ '.topic header')
-    @gauge = new App.GaugeWrapper '.topic_meter'
-    ($ '.upvote a').on 'click', @upvote
-    ($ '.downvote a').on 'click', @downvotea
+class App.Models.Config extends Backbone.Model
+  url: '/config'
 
-    @updateHeader()
-    @updateGauge()
+class App.Models.Topic extends Backbone.Model
+  url: '/topic'
 
-  updateHeader: ->
-    @header.html App.config.topic.name
+  upVote: ->
+    @save vote: 1
 
-  updateGauge: ->
-    @gauge.set parseInt(App.config.topic.score)
+  downVote: ->
+    @save vote: -1
+
+class App.Views.TopicView extends Backbone.View
+  el: ($ 'article.topic')
+  events:
+    'click .upvote a': 'upvote'
+    'click .downvote a': 'downvote'
+
+  initialize: ->
+    @header = ($ 'header', @el)
+    @gauge = new App.GaugeWrapper($ '.topic_meter')
+
+    _.bindAll @, 'render', 'modelSynced'
+    @model.on 'change', @render
+    @model.on 'sync', @modelSynced
 
   upvote: ->
-    console.log 'voteup'
+    @indicate 'upvote'
+    @model.upVote()
 
   downvote: ->
-    console.log 'downvote'
+    @indicate 'downvote'
+    @model.downVote()
 
-bootstrap = ->
-  connectionManager = new App.ConnectionManager App.config.pusher
-  viewManager = new App.ViewManager
+  indicate: (type) ->
+    ($ ".#{type} .indicator", @el).show()
+    ($ ".#{type} a", @el).hide()
 
-  connectionManager.bind 'connecting', ->
-    ($ '#connectionNotice').slideDown()
+  modelSynced: ->
+    @clearAllIndicators()
 
-  connectionManager.bind 'connected', ->
+  clearAllIndicators: ->
+    ($ '.indicator', @el).hide()
+    ($ 'a', @el).show()
+
+  render: ->
+    @header.html @model.get('name')
+    @gauge.set @model.get('percent')
+    @
+
+connect = ->
+  App.connectionManager.bind 'connected', ->
     ($ '#connectionNotice').slideUp()
 
-loadAppConfig = (callback) ->
-  $.getJSON '/config.json', (data) =>
-    App.config = data
-    callback()
+  App.connectionManager.bind 'disconnected', ->
+    ($ '#connectionNotice').slideDown()
+
+  App.connectionManager.bind 'channel:subscribed', (channel) ->
+    channel.bind 'score-changed', (data) ->
+      App.topic.set 'percent', data.percent
+
+    channel.bind 'name-changed', (data) ->
+      App.topic.set 'name', data.name
+
+  App.connectionManager.connect()
+
+initialize = ->
+  App.config.fetch()
+  App.topic.fetch()
+
+  App.config.on 'change', ->
+    connect()
 
 $ ->
-  loadAppConfig -> bootstrap()
+  App.connectionManager = new App.ConnectionManager()
+  App.config = new App.Models.Config()
+  App.topic = new App.Models.Topic(connection: App.connectionManager)
+  App.topicView = new App.Views.TopicView model: App.topic, connection: App.connectionManager
+
+  initialize()

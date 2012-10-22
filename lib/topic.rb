@@ -1,54 +1,74 @@
 class Topic
-  def self.get(key)
-    new key
+  class << self
+    def get(key)
+      # $redis.del key
+      if data = $redis.get(key)
+        new JSON.parse(data).merge('key' => key)
+      else
+        create(key)
+      end
+    end
+
+    def create(key)
+      obj = new('key' => key, 'name' => 'Awesomeness', 'score' => 0, 'votes' => 0)
+      obj.save
+      obj
+    end
   end
 
   attr_reader :key
 
-  def initialize(key)
-    @key = key
-    initialize_if_necessary
+  def initialize(attributes = {})
+    @key = attributes.delete 'key'
+    @attributes = attributes
   end
 
   def name
-    $redis.hget key, 'name'
-  end
-
-  def name=(new_name)
-    $redis.hset key, 'name', name
-    self.score = 0
+    @attributes['name']
   end
 
   def score
-    total = ($redis.hget key, 'score').to_i
-    return 0 if votes.nil? || votes.zero?
-
-    (total / votes.to_f).round
-  end
-
-  def score=(new_score)
-    $redis.hset key, 'score', 0
-    $redis.hset key, 'votes', 0
-  end
-
-  def incr!(ip = nil)
-    $redis.hincrby key, 'score', 1
-    $redis.hincrby key, 'votes', 1
-  end
-
-  def decr!(ip = nil)
-    $redis.hincrby key, 'score', -1
-    $redis.hincrby key, 'votes', 1
+    (@attributes['score'] || 0).to_i
   end
 
   def votes
-    $redis.hget(key, 'votes').to_i
+    (@attributes['votes'] || 0).to_i
   end
 
-private
+  def incr!
+    self.votes += 1
+    self.score += 1
+  end
 
-  def initialize_if_necessary
-    self.name = 'Default' if name.nil?
-    # self.score = 0 if score.zero?
+  def decr!
+    self.votes += 1
+    self.score -= 1
+  end
+
+  def percent
+    return 0 if votes.zero?
+    (score.to_f / votes.to_f * 100).round
+  end
+
+  def save
+    $redis.set @key, self.to_json
+  end
+
+  def to_h
+    @attributes.merge('percent' => percent)
+  end
+
+  def to_json
+    to_h.to_json
+  end
+
+protected
+
+  def score=(value)
+    @attributes['score'] = value
+  end
+
+  def votes=(value)
+    @attributes['votes'] = value
   end
 end

@@ -1,6 +1,9 @@
 body {
   background: #fafafa; }
 
+.hidden {
+  display: none; }
+
 #app {
   width: 82.91457%;
   margin: 25px auto;

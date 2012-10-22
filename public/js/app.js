@@ -1,8 +1,14 @@
-var bootstrap, loadAppConfig,
+var connect, initialize,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-window.App || (window.App = {});
+window.App = {};
+
+window.App.Views = {};
+
+window.App.Models = {};
+
+Backbone.emulateJSON = true;
 
 App.GaugeWrapper = (function() {
   var colorOptions, gaugeOptions;
@@ -57,21 +63,20 @@ App.ConnectionManager = (function(_super) {
 
   __extends(ConnectionManager, _super);
 
-  function ConnectionManager(pusherConfig) {
-    this.pusherConfig = pusherConfig;
-    this.setupPusher();
+  function ConnectionManager() {
+    return ConnectionManager.__super__.constructor.apply(this, arguments);
   }
 
-  ConnectionManager.prototype.setupPusher = function() {
+  ConnectionManager.prototype.connect = function() {
     var WEB_SOCKET_DEBUG, channel, pusher,
       _this = this;
-    if (this.pusherConfig.debug != null) {
+    if (App.config.get('debug') != null) {
       Pusher.log = function(message) {
         return typeof console !== "undefined" && console !== null ? console.log(message) : void 0;
       };
       WEB_SOCKET_DEBUG = true;
     }
-    pusher = new Pusher(this.pusherConfig.key);
+    pusher = new Pusher(App.config.get('key'));
     pusher.connection.bind('state_change', function(states) {
       return _this.trigger('state_change', states);
     });
@@ -84,67 +89,146 @@ App.ConnectionManager = (function(_super) {
     pusher.connection.bind('disconnected', function() {
       return _this.trigger('disconnected');
     });
-    channel = pusher.subscribe(this.pusherConfig.channel);
+    channel = pusher.subscribe(App.config.get('channel'));
     return this.trigger('channel:subscribed', channel);
   };
 
   return ConnectionManager;
 
-})(AbstractEventsDispatcher);
+})(EventsDispatcher);
 
-App.ViewManager = (function() {
+App.Models.Config = (function(_super) {
 
-  function ViewManager() {
-    this.header = $('.topic header');
-    this.gauge = new App.GaugeWrapper('.topic_meter');
-    ($('.upvote a')).on('click', this.upvote);
-    ($('.downvote a')).on('click', this.downvotea);
-    this.updateHeader();
-    this.updateGauge();
+  __extends(Config, _super);
+
+  function Config() {
+    return Config.__super__.constructor.apply(this, arguments);
   }
 
-  ViewManager.prototype.updateHeader = function() {
-    return this.header.html(App.config.topic.name);
+  Config.prototype.url = '/config';
+
+  return Config;
+
+})(Backbone.Model);
+
+App.Models.Topic = (function(_super) {
+
+  __extends(Topic, _super);
+
+  function Topic() {
+    return Topic.__super__.constructor.apply(this, arguments);
+  }
+
+  Topic.prototype.url = '/topic';
+
+  Topic.prototype.upVote = function() {
+    return this.save({
+      vote: 1
+    });
   };
 
-  ViewManager.prototype.updateGauge = function() {
-    return this.gauge.set(parseInt(App.config.topic.score));
+  Topic.prototype.downVote = function() {
+    return this.save({
+      vote: -1
+    });
   };
 
-  ViewManager.prototype.upvote = function() {
-    return console.log('voteup');
+  return Topic;
+
+})(Backbone.Model);
+
+App.Views.TopicView = (function(_super) {
+
+  __extends(TopicView, _super);
+
+  function TopicView() {
+    return TopicView.__super__.constructor.apply(this, arguments);
+  }
+
+  TopicView.prototype.el = $('article.topic');
+
+  TopicView.prototype.events = {
+    'click .upvote a': 'upvote',
+    'click .downvote a': 'downvote'
   };
 
-  ViewManager.prototype.downvote = function() {
-    return console.log('downvote');
+  TopicView.prototype.initialize = function() {
+    this.header = $('header', this.el);
+    this.gauge = new App.GaugeWrapper($('.topic_meter'));
+    _.bindAll(this, 'render', 'modelSynced');
+    this.model.on('change', this.render);
+    return this.model.on('sync', this.modelSynced);
   };
 
-  return ViewManager;
+  TopicView.prototype.upvote = function() {
+    this.indicate('upvote');
+    return this.model.upVote();
+  };
 
-})();
+  TopicView.prototype.downvote = function() {
+    this.indicate('downvote');
+    return this.model.downVote();
+  };
 
-bootstrap = function() {
-  var connectionManager, viewManager;
-  connectionManager = new App.ConnectionManager(App.config.pusher);
-  viewManager = new App.ViewManager;
-  connectionManager.bind('connecting', function() {
-    return ($('#connectionNotice')).slideDown();
-  });
-  return connectionManager.bind('connected', function() {
+  TopicView.prototype.indicate = function(type) {
+    ($("." + type + " .indicator", this.el)).show();
+    return ($("." + type + " a", this.el)).hide();
+  };
+
+  TopicView.prototype.modelSynced = function() {
+    return this.clearAllIndicators();
+  };
+
+  TopicView.prototype.clearAllIndicators = function() {
+    ($('.indicator', this.el)).hide();
+    return ($('a', this.el)).show();
+  };
+
+  TopicView.prototype.render = function() {
+    this.header.html(this.model.get('name'));
+    this.gauge.set(this.model.get('percent'));
+    return this;
+  };
+
+  return TopicView;
+
+})(Backbone.View);
+
+connect = function() {
+  App.connectionManager.bind('connected', function() {
     return ($('#connectionNotice')).slideUp();
   });
+  App.connectionManager.bind('disconnected', function() {
+    return ($('#connectionNotice')).slideDown();
+  });
+  App.connectionManager.bind('channel:subscribed', function(channel) {
+    channel.bind('score-changed', function(data) {
+      return App.topic.set('percent', data.percent);
+    });
+    return channel.bind('name-changed', function(data) {
+      return App.topic.set('name', data.name);
+    });
+  });
+  return App.connectionManager.connect();
 };
 
-loadAppConfig = function(callback) {
-  var _this = this;
-  return $.getJSON('/config.json', function(data) {
-    App.config = data;
-    return callback();
+initialize = function() {
+  App.config.fetch();
+  App.topic.fetch();
+  return App.config.on('change', function() {
+    return connect();
   });
 };
 
 $(function() {
-  return loadAppConfig(function() {
-    return bootstrap();
+  App.connectionManager = new App.ConnectionManager();
+  App.config = new App.Models.Config();
+  App.topic = new App.Models.Topic({
+    connection: App.connectionManager
   });
+  App.topicView = new App.Views.TopicView({
+    model: App.topic,
+    connection: App.connectionManager
+  });
+  return initialize();
 });

@@ -15,6 +15,11 @@ body
   background:#fafafa;
 }
 
+.hidden
+{
+  display: none;
+}
+
 #app
 {
   width:flex-grid(10);
@@ -119,6 +124,10 @@ article.topic
         background-color:$bad-color;
         border-color:darken($bad-color, 10%);
       }
+    }
+
+    .indicator
+    {
     }
 
     .upvote

@@ -47,7 +47,15 @@ class Topic
 
   def percent
     return 0 if votes.zero?
-    (score.to_f / votes.to_f * 100).round
+    p = (score.to_f / votes.to_f * 100).round
+
+    if p < 0
+      0
+    elsif p > 100
+      100
+    else
+      p
+    end
   end
 
   def save

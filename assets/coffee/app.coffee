@@ -1,8 +1,6 @@
-window.WebFontConfig =
-  google:
-    families: ['Lobster', 'The Girl Next Door', 'Archivo Black']
+window.App ||= {}
 
-class GaugeWrapper
+class App.GaugeWrapper
   colorOptions =
     good: '#C7DB70'
     bad: '#D86D78'
@@ -38,6 +36,60 @@ class GaugeWrapper
 
     @gauge.set value
 
+class App.ConnectionManager
+  constructor: (delegate) ->
+    @delegate = delegate
+    @loadAppConfig =>
+      @setupPusher()
+
+  loadAppConfig: (callback) ->
+    $.getJSON '/config.json', (data) =>
+      @appConfig = data
+      callback()
+
+  setupPusher: ->
+    if @appConfig.pusher.debug?
+      Pusher.log = (message) -> console?.log message
+      WEB_SOCKET_DEBUG = true
+
+    pusher = new Pusher @appConfig.pusher.key
+
+    pusher.connection.bind 'state_change', (states) =>
+      @delegate.trigger 'app:state_change', states
+
+    pusher.connection.bind 'connecting', =>
+      @delegate.trigger 'app:connecting'
+
+    pusher.connection.bind 'connected', =>
+      @delegate.trigger 'app:connected'
+
+    pusher.connection.bind 'disconnected', =>
+      @delegate.trigger 'app:disconnected'
+
+    channel = pusher.subscribe @appConfig.pusher.channel
+    @delegate.trigger 'app:channel:subscribed', channel
+
+class App.ChannelEventManager
+  constructor: (@channel) ->
+    @channel.bind 'score-changed', @scoreChanged
+
+  scoreChanged: (data) ->
+    console.log data
+
+class App.VoteManager
+
 $ ->
-  window.gw = new GaugeWrapper('.topic_meter')
-  gw.set 12
+  App.delegate = ($ document)
+  App.connectionManager = new App.ConnectionManager App.delegate
+
+  App.gauge = new App.GaugeWrapper('.topic_meter')
+  App.gauge.set 0.1
+
+  ($ document).bind 'app:connecting', ->
+    ($ '#connectionNotice').slideDown()
+
+  ($ document).bind 'app:connected', ->
+    ($ '#connectionNotice').slideUp()
+
+  ($ document).bind 'app:channel:subscribed', (_, channel) ->
+    App.eventManager = new App.ChannelEventManager channel

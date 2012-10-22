@@ -7,6 +7,9 @@ $fg-max-columns: 12;  // Total Columns For Main Container
 $main-background-color: #1e5799;
 $main-highlight-color: #2989d8;
 
+$good-color: #C7DB70;
+$bad-color: #D86D78;
+
 body
 {
   background:#fafafa;
@@ -18,6 +21,7 @@ body
   margin:$fg-gutter auto;
   border:5px solid #2989d8;
   border-radius: 10px;
+  min-width:650px;
 
   .header
   {
@@ -27,6 +31,27 @@ body
     color:#fff;
     padding:10px;
     text-shadow: 3px 2px $main-highlight-color;
+  }
+
+  #connectionNotice
+  {
+    width:flex-grid(12);
+    padding:5px 0;
+    background:lighten($bad-color, 10%);
+
+    .message
+    {
+      color:darken($bad-color, 20%);
+      text-shadow:1px 1px lighten($bad-color, 15%);
+      font:18px/35px 'McLaren';
+      text-align:center;
+
+      img
+      {
+        vertical-align:middle;
+        margin-right:10px;
+      }
+    }
   }
 }
 
@@ -44,6 +69,7 @@ article.topic
   .controls
   {
     @include clearfix;
+    display:block;
     width:flex-grid(10);
     margin:0 auto;
     padding:$fg-gutter 0;
@@ -51,8 +77,8 @@ article.topic
     .meter
     {
       float:left;
-      width:flex-grid(5);
-      margin-left:flex-grid(2);
+      width:flex-grid(7);
+      margin-left:flex-grid(1);
 
       .topic_meter
       {
@@ -62,21 +88,48 @@ article.topic
 
     @mixin vote-button($float)
     {
+      display:block;
+      @include hide-text;
       float:$float;
       width:flex-grid(2);
       text-align:center;
-      height:140px;
+      height:100px;
       font:100px/140px 'Archivo Black';
+      text-align:center;
+    }
+
+    @mixin vote-arrow($type)
+    {
+      display:block;
+      width:64px;
+      height:64px;
+      background:url("/images/arrow.#{$type}.png") no-repeat center center;
+      border-radius:10px;
+      border-width:2px;
+      border-style:solid;
+      margin:0 auto;
+      vertical-align:middle;
+
+      @if $type == "up"
+      {
+        background-color:$good-color;
+        border-color:darken($good-color, 10%);
+      } @else {
+        background-color:$bad-color;
+        border-color:darken($bad-color, 10%);
+      }
     }
 
     .upvote
     {
       @include vote-button(left);
+      a{ @include vote-arrow('up');}
     }
 
     .downvote
     {
       @include vote-button(right);
+      a{ @include vote-arrow('down'); }
     }
   }
 }

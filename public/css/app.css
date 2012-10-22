@@ -5,7 +5,8 @@ body {
   width: 82.91457%;
   margin: 25px auto;
   border: 5px solid #2989d8;
-  border-radius: 10px; }
+  border-radius: 10px;
+  min-width: 650px; }
   #app .header {
     font: 50px 'Lobster';
     text-align: center;
@@ -19,6 +20,18 @@ body {
     color: #fff;
     padding: 10px;
     text-shadow: 3px 2px #2989d8; }
+  #app #connectionNotice {
+    width: 100%;
+    padding: 5px 0;
+    background: #e3959d; }
+    #app #connectionNotice .message {
+      color: #b02f3c;
+      text-shadow: 1px 1px #e8a9b0;
+      font: 18px/35px "McLaren";
+      text-align: center; }
+      #app #connectionNotice .message img {
+        vertical-align: middle;
+        margin-right: 10px; }
 
 article.topic {
   background: #fff; }
@@ -28,6 +41,7 @@ article.topic {
     font: 25px/100px "The Girl Next Door"; }
   article.topic .controls {
     zoom: 1;
+    display: block;
     width: 82.91457%;
     margin: 0 auto;
     padding: 25px 0; }
@@ -38,19 +52,57 @@ article.topic {
       clear: both; }
     article.topic .controls .meter {
       float: left;
-      width: 40.20101%;
-      margin-left: 14.57286%; }
+      width: 57.28643%;
+      margin-left: 6.03015%; }
       article.topic .controls .meter .topic_meter {
         width: 100%; }
     article.topic .controls .upvote {
+      display: block;
+      background-color: transparent;
+      border: 0;
+      color: transparent;
+      font: 0/0 a;
+      text-shadow: none;
       float: left;
       width: 14.57286%;
       text-align: center;
-      height: 140px;
-      font: 100px/140px "Archivo Black"; }
+      height: 100px;
+      font: 100px/140px "Archivo Black";
+      text-align: center; }
+      article.topic .controls .upvote a {
+        display: block;
+        width: 64px;
+        height: 64px;
+        background: url("/images/arrow.up.png") no-repeat center center;
+        border-radius: 10px;
+        border-width: 2px;
+        border-style: solid;
+        margin: 0 auto;
+        vertical-align: middle;
+        background-color: #c7db70;
+        border-color: #b7d147; }
     article.topic .controls .downvote {
+      display: block;
+      background-color: transparent;
+      border: 0;
+      color: transparent;
+      font: 0/0 a;
+      text-shadow: none;
       float: right;
       width: 14.57286%;
       text-align: center;
-      height: 140px;
-      font: 100px/140px "Archivo Black"; }
+      height: 100px;
+      font: 100px/140px "Archivo Black";
+      text-align: center; }
+      article.topic .controls .downvote a {
+        display: block;
+        width: 64px;
+        height: 64px;
+        background: url("/images/arrow.down.png") no-repeat center center;
+        border-radius: 10px;
+        border-width: 2px;
+        border-style: solid;
+        margin: 0 auto;
+        vertical-align: middle;
+        background-color: #d86d78;
+        border-color: #cd4553; }

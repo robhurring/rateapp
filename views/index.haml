@@ -17,3 +17,12 @@
       .indicator.hidden
         %img{src: '/images/indicator.gif'}
       %a &darr;
+
+%script{src: '', 'data-template' => 'meter_actions'}
+  %h2 Actions
+  .form
+    .control
+      %a.button{href: '#', 'data-action' => 'reset_meter'}Reset Meter
+    .control.right
+      %input{type: 'text', placeholder: 'enter new topic', 'data-input' => 'topic_name'}
+      %a.button{href: '#', 'data-action' => 'change_topic'}Change Topic

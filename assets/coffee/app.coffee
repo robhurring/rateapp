@@ -75,6 +75,52 @@ class App.Models.Topic extends Backbone.Model
   downVote: ->
     @save vote: -1
 
+  updateName: (new_name) ->
+    @save new_name: new_name
+    @unset 'new_name'
+
+  resetScore: ->
+    @save reset: 1
+    @unset 'reset'
+
+class App.Views.ActionSheet extends Backbone.View
+  el: '#action_sheet'
+  events:
+    'click .close': 'rollUp'
+
+  initialize: ->
+    @subview = @options.subview
+    @subview.options.actionSheet = @
+
+  rollUp: ->
+    @$el.slideUp()
+
+  render: ->
+    ($ '.content', @$el).html @subview.render().el
+    @$el.slideDown()
+    @
+
+class App.Views.ActionsView extends Backbone.View
+  events:
+    'click [data-action=reset_meter]': 'resetMeter'
+    'click [data-action=change_topic]': 'changeTopic'
+
+  initialize: ->
+    @template = _.template ($ '[data-template=meter_actions]').html()
+
+  resetMeter: ->
+    @model.resetScore()
+    @options.actionSheet.rollUp()
+
+  changeTopic: ->
+    @model.updateName ($ '[data-input=topic_name]', @$el).val()
+    @options.actionSheet.rollUp()
+
+  render: ->
+    ($ @el).html @template()
+    ($ '[data-input=topic_name]', @$el).val @model.get('name')
+    @
+
 class App.Views.TopicView extends Backbone.View
   el: ($ 'article.topic')
   events:
@@ -100,7 +146,9 @@ class App.Views.TopicView extends Backbone.View
     @model.downVote()
 
   openInfo: ->
-    console.log 'ohai'
+    subview = new App.Views.ActionsView(model: @model)
+    infoView = new App.Views.ActionSheet(subview: subview)
+    infoView.render()
 
   indicate: (type) ->
     ($ ".#{type} .indicator", @el).show()
@@ -138,6 +186,9 @@ connect = ->
 
     channel.bind 'name-changed', (data) ->
       App.topic.set 'name', data.name
+
+    channel.bind 'topic-reset', ->
+      App.topic.fetch()
 
   App.connectionManager.connect()
 

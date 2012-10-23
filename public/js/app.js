@@ -133,9 +133,93 @@ App.Models.Topic = (function(_super) {
     });
   };
 
+  Topic.prototype.updateName = function(new_name) {
+    this.save({
+      new_name: new_name
+    });
+    return this.unset('new_name');
+  };
+
+  Topic.prototype.resetScore = function() {
+    this.save({
+      reset: 1
+    });
+    return this.unset('reset');
+  };
+
   return Topic;
 
 })(Backbone.Model);
+
+App.Views.ActionSheet = (function(_super) {
+
+  __extends(ActionSheet, _super);
+
+  function ActionSheet() {
+    return ActionSheet.__super__.constructor.apply(this, arguments);
+  }
+
+  ActionSheet.prototype.el = '#action_sheet';
+
+  ActionSheet.prototype.events = {
+    'click .close': 'rollUp'
+  };
+
+  ActionSheet.prototype.initialize = function() {
+    this.subview = this.options.subview;
+    return this.subview.options.actionSheet = this;
+  };
+
+  ActionSheet.prototype.rollUp = function() {
+    return this.$el.slideUp();
+  };
+
+  ActionSheet.prototype.render = function() {
+    ($('.content', this.$el)).html(this.subview.render().el);
+    this.$el.slideDown();
+    return this;
+  };
+
+  return ActionSheet;
+
+})(Backbone.View);
+
+App.Views.ActionsView = (function(_super) {
+
+  __extends(ActionsView, _super);
+
+  function ActionsView() {
+    return ActionsView.__super__.constructor.apply(this, arguments);
+  }
+
+  ActionsView.prototype.events = {
+    'click [data-action=reset_meter]': 'resetMeter',
+    'click [data-action=change_topic]': 'changeTopic'
+  };
+
+  ActionsView.prototype.initialize = function() {
+    return this.template = _.template(($('[data-template=meter_actions]')).html());
+  };
+
+  ActionsView.prototype.resetMeter = function() {
+    this.model.resetScore();
+    return this.options.actionSheet.rollUp();
+  };
+
+  ActionsView.prototype.changeTopic = function() {
+    this.model.updateName(($('[data-input=topic_name]', this.$el)).val());
+    return this.options.actionSheet.rollUp();
+  };
+
+  ActionsView.prototype.render = function() {
+    ($(this.el)).html(this.template());
+    ($('[data-input=topic_name]', this.$el)).val(this.model.get('name'));
+    return this;
+  };
+
+  return ActionsView;
+
+})(Backbone.View);
 
 App.Views.TopicView = (function(_super) {
 
@@ -173,7 +257,14 @@ App.Views.TopicView = (function(_super) {
   };
 
   TopicView.prototype.openInfo = function() {
-    return console.log('ohai');
+    var infoView, subview;
+    subview = new App.Views.ActionsView({
+      model: this.model
+    });
+    infoView = new App.Views.ActionSheet({
+      subview: subview
+    });
+    return infoView.render();
   };
 
   TopicView.prototype.indicate = function(type) {
@@ -223,8 +314,11 @@ connect = function() {
     channel.bind('score-changed', function(data) {
       return App.topic.set('percent', data.percent);
     });
-    return channel.bind('name-changed', function(data) {
+    channel.bind('name-changed', function(data) {
       return App.topic.set('name', data.name);
+    });
+    return channel.bind('topic-reset', function() {
+      return App.topic.fetch();
     });
   });
   return App.connectionManager.connect();

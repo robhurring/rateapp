@@ -13,6 +13,12 @@
   %body
     #app
       .header RateApp!
+
+      %div#action_sheet.hidden
+        .close
+          %a{href: '#'}x
+        .content
+
       #connectionNotice
         .message
           %img{src: '/images/indicator-ea.gif'}

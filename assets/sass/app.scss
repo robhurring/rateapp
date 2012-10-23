@@ -27,10 +27,12 @@ body
   border:5px solid #2989d8;
   border-radius: 10px;
   min-width:650px;
+  position:relative;
 
   .header
   {
     font:50px 'Lobster';
+    height:75px;
     text-align:center;
     @include linear-gradient($main-background-color, $main-highlight-color);
     color:#fff;
@@ -55,6 +57,89 @@ body
       {
         vertical-align:middle;
         margin-right:10px;
+      }
+    }
+  }
+
+  #action_sheet
+  {
+    position:absolute;
+    top:95px;
+    left:0;
+    width:flex-grid(12);
+    border-radius:0 0 10px 10px;
+    z-index:100;
+    padding:20px 0;
+    border-style:solid;
+    border-color:#999;
+    border-width:3px 0 2px 0;
+    border-top-color:#fff;
+    background:#e0e0e0;
+
+    .content
+    {
+      width:flex-grid(10);
+      margin:0 auto;
+
+      h2
+      {
+        font:25px/40px 'McLaren';
+        color:#555;
+        text-shadow:1px 1px #fff;
+      }
+
+      .form
+      {
+        @include clearfix;
+
+        .control
+        {
+          float:left;
+          margin-right:10px;
+
+          &.right{ float:right; }
+        }
+
+        a.button
+        {
+          @include button;
+          font:16px $helvetica;
+        }
+
+        #{$all-text-inputs}
+        {
+          font:17px $helvetica;
+          border:1px solid #999;
+          border-radius:5px;
+          padding:6px;
+          margin-right:10px;
+        }
+      }
+    }
+
+    .close
+    {
+      position:absolute;
+      top:5px;
+      right:5px;
+
+      a
+      {
+        display:block;
+        text-align:center;
+        background:$bad-color;
+        width:20px;
+        height:20px;
+        border-radius:5px;
+        border:1px solid darken($bad-color, 25%);
+        font-family:$helvetica;
+        color:darken($bad-color, 25%);
+        text-decoration: none;
+
+        &:hover
+        {
+          background:lighten($bad-color, 10%);
+        }
       }
     }
   }

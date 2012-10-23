@@ -49,14 +49,29 @@ class RateApp < Sinatra::Base
 
     data = JSON.parse(params['model'])
 
-    if data['vote'] == 1
-      @topic.incr!
-    else
-      @topic.decr!
+    if data['vote']
+      if data['vote'] == 1
+        @topic.incr!
+      else
+        @topic.decr!
+      end
+
+      @topic.save
+      Pusher[settings.channel].trigger 'score-changed', {percent: @topic.percent}
     end
 
-    @topic.save
-    Pusher[settings.channel].trigger 'score-changed', {percent: @topic.percent}
+    if data['new_name']
+      @topic.name = data['new_name']
+
+      @topic.save
+      Pusher[settings.channel].trigger 'name-changed', {name: @topic.name}
+    end
+
+    if data['reset']
+      @topic.reset!
+      @topic.save
+      Pusher[settings.channel].trigger 'topic-reset', {}
+    end
 
     nil
   end

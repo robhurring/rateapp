@@ -26,6 +26,10 @@ class Topic
     @attributes['name']
   end
 
+  def name=(new_name)
+    @attributes['name'] = new_name
+  end
+
   def score
     (@attributes['score'] || 0).to_i
   end
@@ -42,6 +46,11 @@ class Topic
   def decr!
     self.votes += 1
     self.score -= 1
+  end
+
+  def reset!
+    self.score = 0
+    self.votes = 0
   end
 
   def percent

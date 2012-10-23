@@ -9,9 +9,11 @@ body {
   margin: 25px auto;
   border: 5px solid #2989d8;
   border-radius: 10px;
-  min-width: 650px; }
+  min-width: 650px;
+  position: relative; }
   #app .header {
     font: 50px 'Lobster';
+    height: 75px;
     text-align: center;
     background-color: #1e5799;
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(100%, compact(#1e5799, #2989d8, false, false, false, false, false, false, false, false)));
@@ -35,6 +37,101 @@ body {
       #app #connectionNotice .message img {
         vertical-align: middle;
         margin-right: 10px; }
+  #app #action_sheet {
+    position: absolute;
+    top: 95px;
+    left: 0;
+    width: 100%;
+    border-radius: 0 0 10px 10px;
+    z-index: 100;
+    padding: 20px 0;
+    border-style: solid;
+    border-color: #999;
+    border-width: 3px 0 2px 0;
+    border-top-color: #fff;
+    background: #e0e0e0; }
+    #app #action_sheet .content {
+      width: 82.91457%;
+      margin: 0 auto; }
+      #app #action_sheet .content h2 {
+        font: 25px/40px "McLaren";
+        color: #555;
+        text-shadow: 1px 1px #fff; }
+      #app #action_sheet .content .form {
+        zoom: 1; }
+        #app #action_sheet .content .form:before, #app #action_sheet .content .form:after {
+          content: "";
+          display: table; }
+        #app #action_sheet .content .form:after {
+          clear: both; }
+        #app #action_sheet .content .form .control {
+          float: left;
+          margin-right: 10px; }
+          #app #action_sheet .content .form .control.right {
+            float: right; }
+        #app #action_sheet .content .form a.button {
+          border: 1px solid #076fe4;
+          -webkit-border-radius: 3px;
+          border-radius: 3px;
+          -webkit-box-shadow: compact(inset 0 1px 0 0 #8ebcf1, false, false, false, false, false, false, false, false);
+          box-shadow: compact(inset 0 1px 0 0 #8ebcf1, false, false, false, false, false, false, false, false);
+          color: white;
+          display: inline-block;
+          font-size: 11px;
+          font-weight: bold;
+          background-color: #4294f0;
+          background-image: -webkit-gradient(linear, left top, left bottom, color-stop(100%, compact(#4294f0, #0776f3, false, false, false, false, false, false, false, false)));
+          background-image: -webkit-linear-gradient(top, compact(#4294f0, #0776f3, false, false, false, false, false, false, false, false));
+          background-image: -moz-linear-gradient(top, compact(#4294f0, #0776f3, false, false, false, false, false, false, false, false));
+          background-image: -ms-linear-gradient(top, compact(#4294f0, #0776f3, false, false, false, false, false, false, false, false));
+          background-image: -o-linear-gradient(top, compact(#4294f0, #0776f3, false, false, false, false, false, false, false, false));
+          background-image: linear-gradient(top, compact(#4294f0, #0776f3, false, false, false, false, false, false, false, false));
+          padding: 7px 18px;
+          text-decoration: none;
+          text-shadow: 0 1px 0 #0065d6;
+          -webkit-background-clip: padding-box;
+          font: 16px "Helvetica Neue", Helvetica, Arial, sans-serif; }
+          #app #action_sheet .content .form a.button:hover:not(:disabled) {
+            -webkit-box-shadow: compact(inset 0 1px 0 0 #60a2ec, false, false, false, false, false, false, false, false);
+            box-shadow: compact(inset 0 1px 0 0 #60a2ec, false, false, false, false, false, false, false, false);
+            cursor: pointer;
+            background-color: #2f87ea;
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(100%, compact(#2f87ea, #086fe3, false, false, false, false, false, false, false, false)));
+            background-image: -webkit-linear-gradient(top, compact(#2f87ea, #086fe3, false, false, false, false, false, false, false, false));
+            background-image: -moz-linear-gradient(top, compact(#2f87ea, #086fe3, false, false, false, false, false, false, false, false));
+            background-image: -ms-linear-gradient(top, compact(#2f87ea, #086fe3, false, false, false, false, false, false, false, false));
+            background-image: -o-linear-gradient(top, compact(#2f87ea, #086fe3, false, false, false, false, false, false, false, false));
+            background-image: linear-gradient(top, compact(#2f87ea, #086fe3, false, false, false, false, false, false, false, false)); }
+          #app #action_sheet .content .form a.button:active:not(:disabled) {
+            border: 1px solid #076fe4;
+            -webkit-box-shadow: compact(inset 0 0 8px 4px #0868d3, inset 0 0 8px 4px #0868d3, 0 1px 1px 0 #eeeeee, false, false, false, false, false, false);
+            box-shadow: compact(inset 0 0 8px 4px #0868d3, inset 0 0 8px 4px #0868d3, 0 1px 1px 0 #eeeeee, false, false, false, false, false, false); }
+          #app #action_sheet .content .form a.button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed; }
+        #app #action_sheet .content .form input[type="email"], #app #action_sheet .content .form input[type="number"], #app #action_sheet .content .form input[type="password"], #app #action_sheet .content .form input[type="search"], #app #action_sheet .content .form input[type="tel"], #app #action_sheet .content .form input[type="text"], #app #action_sheet .content .form input[type="url"], #app #action_sheet .content .form input[type="color"], #app #action_sheet .content .form input[type="date"], #app #action_sheet .content .form input[type="datetime"], #app #action_sheet .content .form input[type="datetime-local"], #app #action_sheet .content .form input[type="month"], #app #action_sheet .content .form input[type="time"], #app #action_sheet .content .form input[type="week"] {
+          font: 17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+          border: 1px solid #999;
+          border-radius: 5px;
+          padding: 6px;
+          margin-right: 10px; }
+    #app #action_sheet .close {
+      position: absolute;
+      top: 5px;
+      right: 5px; }
+      #app #action_sheet .close a {
+        display: block;
+        text-align: center;
+        background: #d86d78;
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        border: 1px solid #9c2a35;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: #9c2a35;
+        text-decoration: none; }
+        #app #action_sheet .close a:hover {
+          background: #e3959d; }
 
 article.topic {
   background: #fff; }

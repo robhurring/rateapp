@@ -71,9 +71,11 @@ class App.Models.Topic extends Backbone.Model
 
   upVote: ->
     @save vote: 1
+    @unset 'vote'
 
   downVote: ->
     @save vote: -1
+    @unset 'vote'
 
   updateName: (new_name) ->
     @save new_name: new_name

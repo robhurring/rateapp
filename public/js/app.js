@@ -122,15 +122,17 @@ App.Models.Topic = (function(_super) {
   Topic.prototype.url = '/topic';
 
   Topic.prototype.upVote = function() {
-    return this.save({
+    this.save({
       vote: 1
     });
+    return this.unset('vote');
   };
 
   Topic.prototype.downVote = function() {
-    return this.save({
+    this.save({
       vote: -1
     });
+    return this.unset('vote');
   };
 
   Topic.prototype.updateName = function(new_name) {
